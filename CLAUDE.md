@@ -2,7 +2,7 @@
 
 Felipe's central place for building apps with Claude Code: a local dashboard over every project in `~/Desktop/Claude`, plus the `/new-app` scaffolder. Started 12 Nov 2026.
 
-**Personal repo.** Local git identity is `Felipe Reis <78143596+FelipeReis26@users.noreply.github.com>`; check `git config user.email` before committing. No remote yet. If one is added it goes on his personal GitHub (`FelipeReis26`) through a repo-only deploy key, never the work `gh` login. `projects.json` is gitignored because it holds work project names and URLs.
+**Personal repo.** Local git identity is `Felipe Reis <78143596+FelipeReis26@users.noreply.github.com>`; check `git config user.email` before committing. Remote: `git@github-dev-hub:FelipeReis26/dev-hub.git` (personal GitHub), pushed through a repo-only deploy key: ssh alias `github-dev-hub` in `~/.ssh/config`, key `~/.ssh/dev-hub_deploy`. Never use the work `gh` login here. `projects.json` is gitignored because it holds work project names and URLs.
 
 ## Pieces
 
@@ -36,5 +36,6 @@ Felipe's central place for building apps with Claude Code: a local dashboard ove
 
 ## Decisions
 
-- 12 Nov 2026: made a personal git repo (no remote). `projects.json` stays out of git. The hub doesn't start at login; Felipe runs `./start`.
+- 12 Nov 2026: pushed to FelipeReis26/dev-hub on GitHub with a deploy key.
+- 12 Nov 2026: made a personal git repo. `projects.json` stays out of git. The hub doesn't start at login; Felipe runs `./start`.
 - 12 Nov 2026: started with the project dashboard and `/new-app`. Shared conventions across projects and an idea backlog were offered as later additions.
