@@ -212,3 +212,106 @@ h1 { margin: 0; font-size: 26px; letter-spacing: -.02em; font-weight: 700; }
   #sort { margin-left: 0; }
   .meta { grid-template-columns: 1fr; }
 }
+
+/* ---------- tabs */
+
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin: -4px 0 18px; }
+.tab {
+  padding: 8px 12px 10px; color: var(--muted); text-decoration: none; font-weight: 550;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.tab span { color: var(--faint); font-weight: 400; font-variant-numeric: tabular-nums; }
+.tab:hover { color: var(--text); }
+.tab.on { color: var(--text); border-bottom-color: var(--accent); }
+
+/* ---------- waiting strip */
+
+.waiting {
+  background: color-mix(in srgb, var(--warn) 9%, var(--surface)); border: 1px solid color-mix(in srgb, var(--warn) 35%, var(--line));
+  border-radius: var(--radius); padding: 12px 14px; margin-bottom: 14px;
+}
+.waiting h2 { margin: 0 0 6px; font-size: 13px; font-weight: 650; color: var(--warn); letter-spacing: .01em; }
+.waiting ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.waiting li { display: flex; align-items: baseline; gap: 10px; padding: 5px 0; min-width: 0; }
+.waiting .w-proj { font-weight: 650; flex: none; }
+.waiting .w-text { color: var(--muted); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.waiting .w-text b { color: var(--text); font-weight: 550; }
+.waiting .btn { flex: none; padding: 3px 10px; font-size: 12.5px; }
+
+/* ---------- sessions on cards */
+
+.sessions:empty { display: none; }
+.sessions { margin: 0 0 12px; border-top: 1px dashed var(--line); padding-top: 10px; }
+.sess-list { list-style: none; margin: 0; padding: 0; }
+.sess {
+  display: grid; grid-template-columns: 10px 1fr auto; gap: 2px 8px; align-items: baseline;
+  padding: 5px 6px; margin: 0 -6px; border-radius: 7px; cursor: pointer; text-align: left;
+  width: calc(100% + 12px); background: none; border: 0; color: inherit; font: inherit;
+}
+.sess:hover { background: var(--surface-2); }
+.sess:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.sess .s-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--faint); align-self: center; }
+.sess.blocked .s-dot, .sess.waiting .s-dot { background: var(--warn); }
+.sess.review_ready .s-dot { background: var(--work); }
+.sess.completed .s-dot { background: var(--ok); }
+.sess.archived { opacity: .6; }
+.sess .s-title { font-weight: 600; font-size: 13px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sess .s-when { color: var(--faint); font-size: 12px; white-space: nowrap; }
+.sess .s-detail { grid-column: 2 / -1; color: var(--muted); font-size: 12.5px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sess .s-detail.needs { color: var(--warn); white-space: normal; }
+.sess .s-src { font-size: 11px; color: var(--faint); margin-left: 4px; font-weight: 400; }
+.more-sess { background: none; border: 0; padding: 4px 0 0; color: var(--muted); font-size: 12px; cursor: pointer; text-decoration: underline; }
+.no-sess { color: var(--faint); font-size: 12.5px; margin: 0; }
+.card-ideas { font-size: 12.5px; color: var(--muted); margin: -4px 0 10px; }
+.card-ideas a { color: inherit; }
+
+.other { margin-top: 22px; color: var(--muted); }
+.other summary { cursor: pointer; font-size: 13px; padding: 4px 0; }
+.other summary span { color: var(--faint); }
+.other .sess-list { max-width: 640px; margin-top: 6px; }
+
+.meta-actions .spacer { flex: 1; }
+.meta-actions [data-terminal] { padding-left: 0; }
+
+/* ---------- ideas */
+
+.idea-form {
+  display: grid; grid-template-columns: minmax(180px, 1.2fr) minmax(160px, 2fr) auto auto; gap: 8px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px;
+}
+.idea-form input, .idea-form select {
+  padding: 8px 11px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); min-width: 0;
+}
+.idea-form input:focus, .idea-form select:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+.hint { color: var(--faint); font-size: 12.5px; margin: 8px 2px 18px; }
+
+.board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; align-items: start; }
+.col { background: var(--surface-2); border-radius: var(--radius); padding: 10px; min-height: 80px; }
+.col h3 { margin: 2px 4px 10px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 650; }
+.col h3 span { color: var(--faint); font-weight: 400; margin-left: 4px; }
+.col .empty { color: var(--faint); font-size: 12.5px; margin: 4px; }
+.idea {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 11px;
+  margin-bottom: 8px; box-shadow: var(--shadow);
+}
+.idea h4 { margin: 0; font-size: 13.5px; font-weight: 620; line-height: 1.35; overflow-wrap: anywhere; }
+.idea p { margin: 4px 0 0; font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
+.idea .i-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 8px; font-size: 11.5px; color: var(--faint); }
+.idea .i-meta .kind { margin-left: 0; }
+.idea .i-meta a { color: var(--muted); }
+.idea .i-actions { display: flex; gap: 2px; align-items: center; margin-top: 8px; flex-wrap: wrap; }
+.idea .i-actions .btn { padding: 3px 8px; font-size: 12px; }
+.idea .i-actions select { font-size: 12px; padding: 2px 4px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); margin-left: auto; }
+.idea form { display: grid; gap: 6px; }
+.idea form input, .idea form select { padding: 5px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); font-size: 13px; }
+.idea form div { display: flex; gap: 4px; justify-content: flex-end; }
+.dropped-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 8px; margin-top: 8px; }
+
+@media (max-width: 900px) {
+  .board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .idea-form { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 560px) {
+  .board, .idea-form { grid-template-columns: 1fr; }
+  .waiting li { flex-wrap: wrap; }
+}

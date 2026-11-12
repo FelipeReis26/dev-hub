@@ -24,10 +24,12 @@ import time
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import ideas  # noqa: E402
 import scanner  # noqa: E402
+import sessions  # noqa: E402
 
 PORT = int(os.environ.get("DEV_HUB_PORT", "4747"))
 STATIC = Path(__file__).resolve().parent / "static"
@@ -186,9 +188,46 @@ def open_claude(cwd: Path, prompt: str | None = None) -> None:
     subprocess.Popen(["open", "-a", "Terminal", str(script)])
 
 
+APP_SESSION_ID = re.compile(r"^local_[0-9a-f-]{36}$")
+CLI_SESSION_ID = re.compile(r"^[0-9a-f-]{36}$")
+
+
+def open_app(path: str, params: dict) -> None:
+    """Open the Claude desktop app through its claude:// deep links."""
+    query = urlencode({**params, "source": "dev-hub"})
+    subprocess.Popen(["open", f"claude://code/{path}?{query}"])
+
+
+def new_app_session(folder: Path, prompt: str | None = None) -> None:
+    params = {"folder": str(folder)}
+    if prompt:
+        params["q"] = prompt
+    open_app("new", params)
+
+
+def open_session(session_id: str, source: str, cwd: str | None) -> None:
+    if source == "app":
+        if not APP_SESSION_ID.match(session_id):
+            raise ValueError("bad session id")
+        open_app("continue", {"session": session_id})
+    elif source == "terminal":
+        if not CLI_SESSION_ID.match(session_id):
+            raise ValueError("bad session id")
+        folder = Path(cwd) if cwd and Path(cwd).is_dir() else scanner.ROOT
+        script = RUN_DIR / f"resume-{session_id[:8]}.command"
+        script.write_text(f"#!/bin/zsh -l\ncd {shlex.quote(str(folder))} || exit 1\nclear\n"
+                          f"exec claude --resume {session_id}\n")
+        script.chmod(0o700)
+        subprocess.Popen(["open", "-a", "Terminal", str(script)])
+    else:
+        raise ValueError("unknown session source")
+
+
 def open_target(project: dict, target: str) -> None:
     path = Path(project["path"])
-    if target == "finder":
+    if target == "app":
+        new_app_session(path)
+    elif target == "finder":
         subprocess.Popen(["open", str(path)])
     elif target == "claude":
         open_claude(path)
@@ -207,9 +246,35 @@ META_FIELDS = {"kind", "url", "run", "port", "notes", "hidden", "pinned"}
 
 def projects_payload() -> dict:
     projects = scanner.scan()
+    names = {p["name"] for p in projects}
+    try:
+        all_sessions = sessions.all_sessions(names)
+    except Exception as e:  # noqa: BLE001  never let session parsing break the page
+        print(f"sessions: {type(e).__name__}: {e}", file=sys.stderr)
+        all_sessions = []
+    by_project: dict[str, list] = {}
+    for sess in all_sessions:
+        by_project.setdefault(sess["project"], []).append(sess)
     for p in projects:
         p["status"] = run_status(p["name"])
-    return {"root": str(scanner.ROOT), "projects": projects, "scanned": time.time()}
+        p["sessions"] = by_project.get(p["name"], [])
+    linked = {}
+    for idea in ideas.load():
+        if idea.get("project"):
+            linked.setdefault(idea["project"], []).append({"id": idea["id"], "title": idea["title"], "stage": idea["stage"]})
+    for p in projects:
+        p["ideas"] = linked.get(p["name"], [])
+    return {"root": str(scanner.ROOT), "projects": projects,
+            "other_sessions": by_project.get(None, []), "scanned": time.time()}
+
+
+def idea_prompt(idea: dict) -> str:
+    parts = [f"/new-app from backlog idea #{idea['id']}: {idea['title']}"]
+    if idea.get("note"):
+        parts.append(idea["note"])
+    if idea.get("kind") in ("work", "personal"):
+        parts.append(f"It's a {idea['kind']} project.")
+    return ". ".join(p.rstrip(". ") for p in parts) + "."
 
 
 def find(name: str) -> dict | None:
@@ -280,6 +345,8 @@ class Handler(BaseHTTPRequestHandler):
         m = re.fullmatch(r"/api/projects/([^/]+)/log", path)
         if m:
             return self._json({"log": log_tail(_unquote(m.group(1)))})
+        if path == "/api/ideas":
+            return self._json({"ideas": ideas.load(), "stages": ideas.STAGES})
         if path == "/api/status":
             names = [p.name for p in scanner.project_dirs()]
             return self._json({n: run_status(n) for n in names})
@@ -307,8 +374,28 @@ class Handler(BaseHTTPRequestHandler):
         path = urlparse(self.path).path
         try:
             if path == "/api/new-app":
-                open_claude(scanner.ROOT, "/new-app")
+                new_app_session(scanner.ROOT, "/new-app")
                 return self._json({"ok": True})
+            if path == "/api/sessions/open":
+                open_session(str(body.get("id", "")), str(body.get("source", "")), body.get("cwd"))
+                return self._json({"ok": True})
+            if path == "/api/ideas":
+                return self._json(ideas.add(body.get("title", ""), body.get("note"), body.get("kind") or "unknown"))
+            m = re.fullmatch(r"/api/ideas/([0-9a-f]{6})(?:/(delete|start))?", path)
+            if m:
+                ref, action = m.group(1), m.group(2)
+                if action == "delete":
+                    ideas.delete(ref)
+                    return self._json({"ok": True})
+                if action == "start":
+                    idea = ideas.find(ideas.load(), ref)
+                    if not idea:
+                        raise KeyError(ref)
+                    new_app_session(scanner.ROOT, idea_prompt(idea))
+                    if idea["stage"] == "idea":
+                        idea = ideas.update(ref, stage="exploring")
+                    return self._json(idea)
+                return self._json(ideas.update(ref, **{k: v for k, v in body.items() if k in ideas.FIELDS}))
             m = re.fullmatch(r"/api/projects/([^/]+)/(run|stop|open|meta)", path)
             if not m:
                 return self._error(HTTPStatus.NOT_FOUND, "not found")
@@ -327,6 +414,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json(save_meta(name, body))
         except ValueError as e:
             return self._error(HTTPStatus.BAD_REQUEST, str(e))
+        except KeyError as e:
+            return self._error(HTTPStatus.NOT_FOUND, f"not found: {e}")
         except Exception as e:  # noqa: BLE001
             return self._error(HTTPStatus.INTERNAL_SERVER_ERROR, f"{type(e).__name__}: {e}")
 

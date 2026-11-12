@@ -1,4 +1,4 @@
-**FBG work project.** Use work accounts only: the `fanatics-gaming` GitHub org, work Vercel/AWS/Atlassian. Never put this on personal GitHub, Vercel or Supabase, and keep FBG data, screenshots and names out of anything personal (the portfolio included).
+**FBG work project.** The work rules in `~/Desktop/Claude/CLAUDE.md` apply: the `fanatics-gaming` org and work accounts only, and nothing from here goes anywhere personal.
 
-- The global git identity (work email) applies here; there is no local override.
-- `gh` is logged in as the work account, so it is fine to use, but ask Felipe before creating or pushing a remote.
+- The global git identity (work email) applies; there's no local override.
+- Ask Felipe before creating or pushing a remote.

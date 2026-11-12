@@ -16,8 +16,7 @@ The dev hub (`~/Desktop/Claude/dev-hub`) picks up `.claude/launch.json`, so the 
 
 ## Working rules
 
-- Any copy Felipe will present or send as himself (UI text, decks, READMEs for other people) follows the `my-writing-style` skill.
-- Keep this file current: what the app is, how to run it, and decisions with their dates. Newest decisions first under "Decisions".
+The workspace rules in `~/Desktop/Claude/CLAUDE.md` (accounts, writing voice, secrets) apply here too. Keep this file current: what the app is, how to run it, and decisions with their dates, newest first under "Decisions".
 
 ## Decisions
 

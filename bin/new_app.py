@@ -2,7 +2,7 @@
 """Scaffold a new project in ~/Desktop/Claude.
 
     python3 bin/new_app.py <name> --kind personal|work --template static|vite-react|python|blank \
-        --description "One line on what it is" [--title "Nice Name"] [--dry-run]
+        --description "One line on what it is" [--title "Nice Name"] [--idea <id>] [--dry-run]
 
 Creates the folder, fills in the template, writes CLAUDE.md, README.md,
 .gitignore and .claude/launch.json (with a port nothing else uses), runs
@@ -25,6 +25,7 @@ from pathlib import Path
 
 HUB = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(HUB / "hub"))
+import ideas  # noqa: E402
 import scanner  # noqa: E402
 
 TEMPLATES = HUB / "templates"
@@ -112,6 +113,7 @@ def main() -> None:
     ap.add_argument("--template", required=True, choices=sorted(tpls))
     ap.add_argument("--description", required=True)
     ap.add_argument("--title")
+    ap.add_argument("--idea", help="backlog idea id to link to the new project")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--list-templates", action="store_true")
     a = ap.parse_args()
@@ -171,6 +173,13 @@ def main() -> None:
     data[a.name] = entry
     scanner.save_overrides(data)
 
+    linked = None
+    if a.idea:
+        try:
+            linked = ideas.update(a.idea, project=a.name)["id"]
+        except (KeyError, ValueError) as err:
+            print(f"warning: couldn't link idea {a.idea}: {err}", file=sys.stderr)
+
     email = subprocess.run(["git", "-C", str(target), "config", "user.email"],
                            capture_output=True, text=True).stdout.strip()
     print(json.dumps({
@@ -180,6 +189,7 @@ def main() -> None:
         "port": port,
         "git_email": email,
         "install": tpl.get("install"),
+        "idea": linked,
         "files": [str(p.relative_to(target)) for p in plan],
     }, indent=2))
 

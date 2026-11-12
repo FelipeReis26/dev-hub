@@ -14,30 +14,70 @@
     <p class="sub" id="summary">Reading ~/Desktop/Claude…</p>
   </div>
   <div class="actions">
-    <button class="btn primary" id="new-app" title="Opens Claude in Terminal with /new-app">New app</button>
+    <button class="btn primary" id="new-app" title="Opens a new Claude session in ~/Desktop/Claude with /new-app ready to send">New app</button>
     <button class="btn" id="refresh" title="Rescan (R)">Rescan</button>
   </div>
 </header>
 
-<nav class="bar">
-  <input id="search" type="search" placeholder="Search projects  /" autocomplete="off" spellcheck="false">
-  <div class="chips" id="filters" role="tablist">
-    <button data-filter="all" class="chip on">All <span></span></button>
-    <button data-filter="work" class="chip">Work <span></span></button>
-    <button data-filter="personal" class="chip">Personal <span></span></button>
-    <button data-filter="unknown" class="chip">Untagged <span></span></button>
-    <button data-filter="running" class="chip">Running <span></span></button>
-  </div>
-  <select id="sort" aria-label="Sort">
-    <option value="touched">Recently touched</option>
-    <option value="name">Name</option>
-    <option value="changes">Uncommitted changes</option>
-  </select>
+<nav class="tabs" role="tablist">
+  <a href="#projects" class="tab" data-view="projects" role="tab">Projects <span id="count-projects"></span></a>
+  <a href="#ideas" class="tab" data-view="ideas" role="tab">Ideas <span id="count-ideas"></span></a>
 </nav>
 
-<main id="grid" class="grid" aria-live="polite"></main>
-<p id="hidden-note" class="hidden-note"></p>
+<!-- ================================================================ projects -->
+<section id="view-projects" class="view">
+  <section id="waiting" class="waiting" hidden>
+    <h2>Waiting on you</h2>
+    <ul id="waiting-list"></ul>
+  </section>
 
+  <div class="bar">
+    <input id="search" type="search" placeholder="Search projects  /" autocomplete="off" spellcheck="false">
+    <div class="chips" id="filters" role="tablist">
+      <button data-filter="all" class="chip on">All <span></span></button>
+      <button data-filter="work" class="chip">Work <span></span></button>
+      <button data-filter="personal" class="chip">Personal <span></span></button>
+      <button data-filter="unknown" class="chip">Untagged <span></span></button>
+      <button data-filter="running" class="chip">Running <span></span></button>
+    </div>
+    <select id="sort" aria-label="Sort">
+      <option value="session">Last Claude session</option>
+      <option value="touched">Recently touched</option>
+      <option value="name">Name</option>
+      <option value="changes">Uncommitted changes</option>
+    </select>
+  </div>
+
+  <main id="grid" class="grid" aria-live="polite"></main>
+  <p id="hidden-note" class="hidden-note"></p>
+
+  <details id="other-sessions" class="other" hidden>
+    <summary>Sessions outside a project <span></span></summary>
+    <ul class="sess-list"></ul>
+  </details>
+</section>
+
+<!-- ================================================================ ideas -->
+<section id="view-ideas" class="view" hidden>
+  <form id="idea-form" class="idea-form" autocomplete="off">
+    <input name="title" placeholder="What's the idea?" required maxlength="140">
+    <input name="note" placeholder="A bit more, if you want (optional)">
+    <select name="kind" aria-label="Work or personal">
+      <option value="unknown">Not sure yet</option>
+      <option value="personal">Personal</option>
+      <option value="work">Work</option>
+    </select>
+    <button class="btn primary" type="submit">Add idea</button>
+  </form>
+  <p class="hint">Or tell Claude in any session, “park this as an idea”, and it lands here.</p>
+  <div id="board" class="board"></div>
+  <details id="dropped" class="other" hidden>
+    <summary>Dropped <span></span></summary>
+    <div class="dropped-list"></div>
+  </details>
+</section>
+
+<!-- ================================================================ templates -->
 <template id="card">
   <article class="card">
     <div class="card-head">
@@ -49,9 +89,10 @@
     <ul class="stack"></ul>
     <dl class="facts"></dl>
     <div class="running-line"></div>
+    <div class="sessions"></div>
     <div class="card-actions">
       <button class="btn run"></button>
-      <button class="btn ghost" data-open="claude" title="Open Terminal here running claude">Claude</button>
+      <button class="btn ghost" data-open="app" title="Start a new Claude session in this folder">New session</button>
       <button class="btn ghost" data-open="finder">Finder</button>
       <button class="btn ghost live" data-open="url">Live site</button>
       <button class="btn ghost icon more" title="Settings" aria-label="Settings">
@@ -74,6 +115,8 @@
       <label class="check"><input name="pinned" type="checkbox"> Pin to top</label>
       <label class="check"><input name="hide" type="checkbox"> Hide</label>
       <div class="meta-actions">
+        <button class="btn ghost" type="button" data-terminal title="Open Terminal here running claude">Claude in Terminal</button>
+        <span class="spacer"></span>
         <button class="btn" type="button" data-cancel>Cancel</button>
         <button class="btn primary" type="submit">Save</button>
       </div>
