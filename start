@@ -1,0 +1,9 @@
+#!/bin/zsh
+# Start the dev hub (if it isn't already running) and open it.
+cd "${0:A:h}"
+URL=http://127.0.0.1:4747/
+if ! curl -fs -o /dev/null "${URL}api/status"; then
+  nohup python3 hub/server.py > .run/hub.log 2>&1 &
+  for i in {1..30}; do curl -fs -o /dev/null "${URL}api/status" && break; sleep 0.1; done
+fi
+open "$URL"

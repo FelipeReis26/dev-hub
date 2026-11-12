@@ -1,0 +1,7 @@
+{
+  "label": "Vite + React + TypeScript",
+  "launch": {"runtimeExecutable": "npm", "runtimeArgs": ["run", "dev", "--", "--host", "127.0.0.1", "--port", "{{port}}", "--strictPort"]},
+  "run_notes": "`npm install` once, then `npm run dev -- --port {{port}}`. `npm run build` type-checks and builds to `dist/`.",
+  "gitignore": ["node_modules/", "dist/", ".DS_Store", ".env*", "!.env.example", ".vercel/"],
+  "install": ["npm", "install"]
+}

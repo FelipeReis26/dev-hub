@@ -1,0 +1,6 @@
+{
+  "label": "Static page (HTML, CSS, JS, no build step)",
+  "launch": {"runtimeExecutable": "python3", "runtimeArgs": ["-m", "http.server", "{{port}}", "--bind", "127.0.0.1"]},
+  "run_notes": "No build step. `python3 -m http.server {{port}} --bind 127.0.0.1`, then open http://127.0.0.1:{{port}}/.",
+  "gitignore": [".DS_Store"]
+}

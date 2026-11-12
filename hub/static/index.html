@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dev hub</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23c2410c'/%3E%3Cpath d='M9 11l-4 5 4 5M23 11l4 5-4 5M18 9l-4 14' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <h1>Dev hub</h1>
+    <p class="sub" id="summary">Reading ~/Desktop/Claude…</p>
+  </div>
+  <div class="actions">
+    <button class="btn primary" id="new-app" title="Opens Claude in Terminal with /new-app">New app</button>
+    <button class="btn" id="refresh" title="Rescan (R)">Rescan</button>
+  </div>
+</header>
+
+<nav class="bar">
+  <input id="search" type="search" placeholder="Search projects  /" autocomplete="off" spellcheck="false">
+  <div class="chips" id="filters" role="tablist">
+    <button data-filter="all" class="chip on">All <span></span></button>
+    <button data-filter="work" class="chip">Work <span></span></button>
+    <button data-filter="personal" class="chip">Personal <span></span></button>
+    <button data-filter="unknown" class="chip">Untagged <span></span></button>
+    <button data-filter="running" class="chip">Running <span></span></button>
+  </div>
+  <select id="sort" aria-label="Sort">
+    <option value="touched">Recently touched</option>
+    <option value="name">Name</option>
+    <option value="changes">Uncommitted changes</option>
+  </select>
+</nav>
+
+<main id="grid" class="grid" aria-live="polite"></main>
+<p id="hidden-note" class="hidden-note"></p>
+
+<template id="card">
+  <article class="card">
+    <div class="card-head">
+      <span class="dot" title="Running"></span>
+      <h2 class="name"></h2>
+      <span class="kind"></span>
+    </div>
+    <p class="blurb"></p>
+    <ul class="stack"></ul>
+    <dl class="facts"></dl>
+    <div class="running-line"></div>
+    <div class="card-actions">
+      <button class="btn run"></button>
+      <button class="btn ghost" data-open="claude" title="Open Terminal here running claude">Claude</button>
+      <button class="btn ghost" data-open="finder">Finder</button>
+      <button class="btn ghost live" data-open="url">Live site</button>
+      <button class="btn ghost icon more" title="Settings" aria-label="Settings">
+        <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><circle cx="4" cy="10" r="1.6"/><circle cx="10" cy="10" r="1.6"/><circle cx="16" cy="10" r="1.6"/></svg>
+      </button>
+    </div>
+    <pre class="log" hidden></pre>
+    <form class="meta" hidden>
+      <label>Type
+        <select name="kind">
+          <option value="">Not set</option>
+          <option value="work">Work</option>
+          <option value="personal">Personal</option>
+        </select>
+      </label>
+      <label>Live site <input name="url" type="url" placeholder="https://…"></label>
+      <label class="wide">Run command <input name="run" placeholder="e.g. npm run dev, or python3 app.py"></label>
+      <label>Port <input name="port" type="number" min="1" max="65535" placeholder="auto"></label>
+      <label class="wide">Notes <input name="notes" placeholder="Shown instead of the README line"></label>
+      <label class="check"><input name="pinned" type="checkbox"> Pin to top</label>
+      <label class="check"><input name="hide" type="checkbox"> Hide</label>
+      <div class="meta-actions">
+        <button class="btn" type="button" data-cancel>Cancel</button>
+        <button class="btn primary" type="submit">Save</button>
+      </div>
+    </form>
+  </article>
+</template>
+
+<div id="toast" class="toast" role="status"></div>
+<script src="/app.js"></script>
+</body>
+</html>

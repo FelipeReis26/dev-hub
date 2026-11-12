@@ -1,0 +1,5 @@
+{
+  "label": "Blank (just CLAUDE.md, README and git)",
+  "run_notes": "Nothing to run yet.",
+  "gitignore": [".DS_Store"]
+}
